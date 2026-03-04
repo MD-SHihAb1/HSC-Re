@@ -2,7 +2,7 @@
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>HSC 2026 রুটিন</title>
 <link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -21,7 +21,8 @@
   --text: #e2e8f0;
   --muted: #64748b;
 }
-* { margin:0; padding:0; box-sizing:border-box; }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior:smooth; }
 body {
   font-family: 'Hind Siliguri', sans-serif;
   background: var(--bg);
@@ -234,13 +235,87 @@ body::before {
 ::-webkit-scrollbar-track { background:var(--card); }
 ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
 
-@media(max-width:580px){
-  .cal-wrap { gap:4px; }
-  .day-cell { min-height:64px; padding:5px 2px; border-radius:8px; }
+/* ── MOBILE RESPONSIVE ── */
+@media(max-width:640px){
+  .wrap { padding:12px 10px; }
+
+  .hdr { padding:18px 0 14px; }
+  .hdr h1 { font-size:20px; }
+  .badge { font-size:11px; padding:4px 13px; }
+  .hdr p { font-size:12px; }
+
+  .timeline { gap:6px; margin:14px 0 18px; }
+  .phase-chip { font-size:10px; padding:5px 10px; border-radius:6px; }
+
+  .legend { gap:6px; margin-bottom:18px; }
+  .leg-item { font-size:11px; padding:4px 9px; }
+  .leg-dot { width:7px; height:7px; }
+
+  .month-hd { font-size:15px; margin-bottom:12px; }
+  .month-hd small { font-size:11px; }
+  .month-sec { margin-bottom:24px; }
+
+  .cal-wrap { gap:3px; }
+  .day-hdr { font-size:9px; padding:4px 1px; }
+  .day-cell {
+    min-height:58px; padding:5px 2px 4px;
+    border-radius:7px; border-width:1px;
+    gap:2px;
+  }
+  .day-cell:hover { transform:translateY(-1px); }
   .dnum { font-size:12px; }
-  .pill { font-size:7px; }
-  .mbody { padding:14px 16px 20px; }
-  .mhdr { padding:16px 16px 12px; }
+  .pills { gap:1.5px; }
+  .pill { font-size:7px; padding:1px 2px; border-radius:3px; }
+  .off-lbl { font-size:7.5px; }
+
+  /* Modal full screen on mobile */
+  .ov { padding:0; align-items:flex-end; }
+  .modal {
+    border-radius:18px 18px 0 0;
+    max-height:88vh;
+    border-bottom:none;
+  }
+  .mhdr { padding:16px 16px 12px; border-radius:18px 18px 0 0; }
+  .mdate { font-size:16px; }
+  .mphase { font-size:11px; }
+  .mbody { padding:12px 14px 28px; }
+
+  .time-banner { font-size:11.5px; padding:10px 12px; margin-bottom:14px; }
+  .time-banner strong { font-size:12.5px; }
+
+  .sub-cards-title { font-size:12px; margin-bottom:10px; }
+
+  .sub-card { padding:12px 13px; margin-bottom:8px; border-radius:10px; }
+  .sc-top { gap:7px; margin-bottom:7px; }
+  .sc-icon { font-size:16px; }
+  .sc-name { font-size:13px; }
+  .sc-time { font-size:10px; padding:2px 7px; }
+  .sc-topics li { font-size:12px; padding:4px 0; gap:6px; }
+
+  .tip-box { font-size:12px; padding:11px 13px; margin-top:12px; }
+  .tip-box strong { font-size:12.5px; }
+
+  /* Stats */
+  .stats-row { gap:8px; margin:14px 0 20px; }
+  .stat-box { padding:10px 12px; min-width:80px; border-radius:10px; }
+  .stat-box .num { font-size:20px; }
+  .stat-box .lbl { font-size:10px; }
+
+  /* Advice */
+  .advice-sec { padding:16px; margin-top:22px; border-radius:14px; }
+  .advice-hd { font-size:15px; margin-bottom:12px; }
+  .advice-grid { grid-template-columns:1fr; gap:10px; }
+  .adv-card { padding:12px; border-radius:10px; }
+  .adv-card h4 { font-size:12.5px; margin-bottom:6px; }
+  .adv-card p { font-size:11.5px; line-height:1.6; }
+}
+
+/* Extra small phones */
+@media(max-width:380px){
+  .day-cell { min-height:52px; }
+  .dnum { font-size:11px; }
+  .pill { font-size:6.5px; }
+  .phase-chip { font-size:9px; padding:4px 8px; }
 }
 </style>
 </head>
