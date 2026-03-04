@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HSC 2026 রুটিন</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #070d1a;
+  --card: #0f172a;
+  --card2: #1e293b;
+  --border: #1e3a5f;
+  --accent: #38bdf8;
+  --gold: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --purple: #a78bfa;
+  --orange: #fb923c;
+  --pink: #f472b6;
+  --text: #e2e8f0;
+  --muted: #64748b;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Hind Siliguri', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse at 15% 15%, rgba(56,189,248,0.07) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 85%, rgba(167,139,250,0.06) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(251,191,36,0.03) 0%, transparent 70%);
+  pointer-events:none; z-index:0;
+}
+.wrap { max-width:1080px; margin:0 auto; padding:24px 16px; position:relative; z-index:1; }
+
+/* HEADER */
+.hdr { text-align:center; padding:28px 0 20px; }
+.badge {
+  display:inline-block;
+  background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(167,139,250,0.15));
+  border:1px solid rgba(56,189,248,0.4);
+  border-radius:100px; padding:5px 18px;
+  font-size:13px; color:var(--accent);
+  margin-bottom:14px; letter-spacing:1px;
+}
+.hdr h1 {
+  font-size:clamp(22px,5vw,40px); font-weight:700;
+  background:linear-gradient(135deg,#38bdf8,#a78bfa,#34d399);
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  background-clip:text; margin-bottom:8px; line-height:1.2;
+}
+.hdr p { color:var(--muted); font-size:14px; }
+
+/* PHASE TIMELINE */
+.timeline {
+  display:flex; flex-wrap:wrap; gap:8px;
+  justify-content:center; margin:20px 0 28px;
+}
+.phase-chip {
+  border-radius:8px; padding:8px 14px; font-size:12px;
+  font-weight:600; display:flex; align-items:center; gap:6px;
+  border:1px solid;
+}
+
+/* LEGEND */
+.legend {
+  display:flex; flex-wrap:wrap; gap:8px;
+  justify-content:center; margin-bottom:28px;
+}
+.leg-item {
+  display:flex; align-items:center; gap:6px;
+  background:var(--card); border:1px solid var(--border);
+  border-radius:8px; padding:5px 12px; font-size:12px; font-weight:600;
+}
+.leg-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+/* MONTH */
+.month-sec { margin-bottom:32px; }
+.month-hd {
+  font-size:18px; font-weight:700; color:var(--gold);
+  padding-bottom:10px; border-bottom:2px solid rgba(251,191,36,0.25);
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.month-hd small { font-size:12px; color:var(--muted); font-weight:400; }
+
+/* CALENDAR */
+.cal-wrap { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.day-hdr {
+  text-align:center; font-size:11px; color:var(--muted);
+  font-weight:700; padding:5px 2px; letter-spacing:0.5px;
+}
+.day-cell {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:10px; padding:7px 4px 6px;
+  min-height:80px; display:flex; flex-direction:column;
+  align-items:center; gap:3px; cursor:pointer;
+  transition:all 0.2s ease; position:relative;
+}
+.day-cell:hover {
+  border-color:var(--accent); background:var(--card2);
+  transform:translateY(-3px);
+  box-shadow:0 10px 30px rgba(56,189,248,0.12);
+}
+.day-cell.empty { background:transparent; border-color:transparent; pointer-events:none; }
+.day-cell.today { border-color:var(--accent); box-shadow:0 0 0 2px rgba(56,189,248,0.2); }
+.day-cell.off { cursor:default; opacity:0.5; }
+.day-cell.off:hover { transform:none; box-shadow:none; border-color:var(--border); background:var(--card); }
+.day-cell.eid-day {
+  background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(251,191,36,0.03));
+  border-color:rgba(251,191,36,0.35); cursor:default;
+}
+.day-cell.eid-day:hover { transform:none; box-shadow:none; }
+.day-cell.village-day {
+  background:linear-gradient(135deg,rgba(52,211,153,0.06),rgba(52,211,153,0.02));
+  border-color:rgba(52,211,153,0.25); cursor:default;
+}
+.day-cell.village-day:hover { transform:none; box-shadow:none; }
+
+.dnum { font-size:15px; font-weight:700; color:var(--text); line-height:1; }
+.day-cell.today .dnum { color:var(--accent); }
+.day-cell.off .dnum,
+.day-cell.eid-day .dnum,
+.day-cell.village-day .dnum { color:var(--muted); }
+
+.pills { display:flex; flex-direction:column; gap:2px; width:100%; padding:0 2px; }
+.pill {
+  font-size:8.5px; font-weight:700; border-radius:4px;
+  padding:1.5px 3px; text-align:center;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.off-lbl { font-size:9px; color:var(--muted); text-align:center; line-height:1.3; margin-top:2px; }
+
+/* MODAL */
+.ov {
+  position:fixed; inset:0;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);
+  z-index:200; display:none; align-items:center;
+  justify-content:center; padding:12px;
+}
+.ov.show { display:flex; animation:fdin 0.2s ease; }
+@keyframes fdin { from{opacity:0} to{opacity:1} }
+.modal {
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:20px; width:100%; max-width:660px;
+  max-height:92vh; overflow-y:auto;
+  animation:sup 0.3s ease;
+}
+@keyframes sup { from{transform:translateY(25px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+.mhdr {
+  padding:22px 26px 16px; border-bottom:1px solid var(--border);
+  display:flex; align-items:flex-start; justify-content:space-between;
+  position:sticky; top:0; background:var(--card);
+  border-radius:20px 20px 0 0; z-index:5;
+}
+.mhdr-info { flex:1; }
+.mdate { font-size:20px; font-weight:700; color:var(--text); }
+.mphase { font-size:12px; margin-top:4px; font-weight:600; }
+.mcls {
+  background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.3);
+  color:var(--red); border-radius:8px; width:34px; height:34px;
+  font-size:17px; cursor:pointer; display:flex;
+  align-items:center; justify-content:center;
+  transition:all 0.2s; flex-shrink:0; margin-left:12px;
+}
+.mcls:hover { background:rgba(248,113,113,0.22); }
+
+.mbody { padding:18px 26px 26px; }
+
+.time-banner {
+  background:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(167,139,250,0.08));
+  border:1px solid rgba(56,189,248,0.2); border-radius:10px;
+  padding:11px 16px; margin-bottom:18px; font-size:13px; color:#94a3b8;
+  line-height:1.6;
+}
+.time-banner strong { color:var(--accent); display:block; margin-bottom:3px; font-size:14px; }
+
+.sub-cards-title {
+  font-size:14px; font-weight:700; color:var(--accent);
+  margin-bottom:12px; display:flex; align-items:center; gap:7px;
+}
+
+.sub-card {
+  background:var(--card2); border:1.5px solid var(--border);
+  border-radius:12px; padding:15px 16px; margin-bottom:10px;
+  border-left-width:4px; transition:transform 0.15s;
+}
+.sub-card:hover { transform:translateX(3px); }
+.sc-top { display:flex; align-items:center; gap:9px; margin-bottom:9px; }
+.sc-icon { font-size:19px; }
+.sc-name { font-size:15px; font-weight:700; flex:1; }
+.sc-time {
+  font-size:11px; color:var(--muted);
+  background:rgba(255,255,255,0.06); padding:3px 9px;
+  border-radius:20px; white-space:nowrap;
+}
+.sc-topics { list-style:none; }
+.sc-topics li {
+  font-size:13px; color:#cbd5e1; padding:4px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex; align-items:flex-start; gap:7px; line-height:1.5;
+}
+.sc-topics li:last-child { border-bottom:none; }
+.sc-topics li::before { content:'▸'; color:var(--accent); flex-shrink:0; font-size:10px; margin-top:2px; }
+
+.tip-box {
+  background:rgba(251,191,36,0.07); border:1px solid rgba(251,191,36,0.22);
+  border-radius:10px; padding:13px 16px; margin-top:16px;
+  font-size:13px; color:#fde68a; line-height:1.6;
+}
+.tip-box strong { display:block; margin-bottom:4px; font-size:13.5px; color:var(--gold); }
+
+/* ADVICE */
+.advice-sec {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:22px; margin-top:30px;
+}
+.advice-hd { font-size:17px; font-weight:700; color:var(--gold); margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+.advice-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:12px; }
+.adv-card {
+  background:var(--card2); border:1px solid var(--border);
+  border-left:3px solid; border-radius:12px; padding:14px;
+}
+.adv-card h4 { font-size:13.5px; font-weight:700; margin-bottom:7px; }
+.adv-card p { font-size:12.5px; color:#94a3b8; line-height:1.65; }
+
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:var(--card); }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+@media(max-width:580px){
+  .cal-wrap { gap:4px; }
+  .day-cell { min-height:64px; padding:5px 2px; border-radius:8px; }
+  .dnum { font-size:12px; }
+  .pill { font-size:7px; }
+  .mbody { padding:14px 16px 20px; }
+  .mhdr { padding:16px 16px 12px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="hdr">
+  <div class="badge">🎯 HSC 2026 · বিজ্ঞান বিভাগ · ঢাকা বোর্ড</div>
+  <h1>তোমার সম্পূর্ণ পড়ার রুটিন</h1>
+  <p>প্রতিটা তারিখে ক্লিক করো → আজকে কখন কী পড়বে সব দেখাবে ✨</p>
+</div>
+
+<div class="timeline">
+  <div class="phase-chip" style="background:rgba(56,189,248,0.08);border-color:rgba(56,189,248,0.3);color:#38bdf8">📿 Mar 5–21 · রমজান · ৯:০০–১১:০০ রাত · ৫ sub</div>
+  <div class="phase-chip" style="background:rgba(251,191,36,0.08);border-color:rgba(251,191,36,0.3);color:#fbbf24">🎉 Mar 22–27 · ঈদ ছুটি</div>
+  <div class="phase-chip" style="background:rgba(248,113,113,0.08);border-color:rgba(248,113,113,0.3);color:#f87171">🔥 Mar 28–May 31 · Intensive · ৬ sub/দিন · রাত ১১টায় শেষ</div>
+</div>
+
+<div class="legend">
+  <div class="leg-item"><div class="leg-dot" style="background:#38bdf8"></div>পদার্থ</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#34d399"></div>রসায়ন</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fbbf24"></div>গণিত</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#f472b6"></div>জীববিজ্ঞান</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#a78bfa"></div>ইংরেজি</div>
+  <div class="leg-item"><div class="leg-dot" style="background:#fb923c"></div>বাংলা/ICT</div>
+</div>
+
+<div id="cal-root"></div>
+
+<div class="advice-sec">
+  <div class="advice-hd">💡 A to Z গাইড — কীভাবে পড়বে</div>
+  <div class="advice-grid">
+    <div class="adv-card" style="border-left-color:#38bdf8">
+      <h4 style="color:#38bdf8">⚛️ পদার্থবিজ্ঞান (Fail ছিল)</h4>
+      <p>সূত্র বুঝে মুখস্থ করো। প্রতি অধ্যায়ে সংজ্ঞা + সূত্র + ২টি সৃজনশীল। নিউটনের সূত্র, তরঙ্গ, তড়িৎ — এই ৩টা সবচেয়ে বেশি নম্বর আসে। Board বইয়ের উদাহরণ সব করো।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#34d399">
+      <h4 style="color:#34d399">🧪 রসায়ন (Fail ছিল)</h4>
+      <p>বিক্রিয়া equation balance করতে শেখো। জৈব রসায়নের নামকরণ + functional group চেনো। মোলারিটি, pH calculation প্রতিদিন প্র্যাকটিস। MCQ-তে বেশি নম্বর আসে।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#fbbf24">
+      <h4 style="color:#fbbf24">📐 উচ্চতর গণিত (4th sub)</h4>
+      <p>Syllabus তুলনামূলক কম। সরলরেখা, বৃত্ত, সমাকলন, ত্রিকোণমিতি focus করো। প্রতিদিন ৫-৭টা অঙ্ক করো। Board বইয়ের অনুশীলনী আগে শেষ করো, তারপর 2024 test paper।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#f472b6">
+      <h4 style="color:#f472b6">🌿 জীববিজ্ঞান</h4>
+      <p>চিত্র এঁকে পড়ো — এটাই best technique। কোষ বিভাজন, DNA, উদ্ভিদের পুষ্টি, রক্ত সঞ্চালন — প্রতিটা নিজে আঁকো। Labels মুখস্থ হলে সৃজনশীলে পুরো নম্বর পাবে।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#a78bfa">
+      <h4 style="color:#a78bfa">📝 ইংরেজি</h4>
+      <p>Writing part-এ সহজ নম্বর আছে — Letter, Email, Paragraph, Summary রোজ ১টা করো। Seen passage-এর patterns শেখো। Grammar: Tense, Voice, Narration — board pattern দেখে করো।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#fb923c">
+      <h4 style="color:#fb923c">📖 বাংলা ও ICT</h4>
+      <p>বাংলায় গল্প/কবিতার মূলভাব + সারাংশ + ভাব-সম্প্রসারণ practice করো। ICT-তে chapter ১-৫ এর সংজ্ঞা + MCQ focus করলেই হবে। এই দুটোয় A+ সহজ।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#38bdf8">
+      <h4 style="color:#38bdf8">📿 রমজানে পড়ার সময়সূচি</h4>
+      <p><strong>সেহরির পর (৪:৩০–৬টা):</strong> ১.৫ ঘণ্টা — তখন মাথা সবচেয়ে fresh। <strong>দুপুর (২–৩:৩০):</strong> হালকা পড়া। <strong>ইফতারের পর (৮–১০টা):</strong> ২ ঘণ্টা মনোযোগ দিয়ে।</p>
+    </div>
+    <div class="adv-card" style="border-left-color:#f87171">
+      <h4 style="color:#f87171">🚨 যা করবে না</h4>
+      <p>রাত জেগে পড়বে না — sleep ছাড়া memory কাজ করে না। Social media একদম কমাও। একসাথে সব বিষয় ধরবে না। Test paper-এর আগে Board বই শেষ করো।</p>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- MODAL -->
+<div class="ov" id="ov" onclick="closeOv(event)">
+  <div class="modal" id="modal">
+    <div class="mhdr">
+      <div class="mhdr-info">
+        <div class="mdate" id="m-date"></div>
+        <div class="mphase" id="m-phase"></div>
+      </div>
+      <button class="mcls" onclick="document.getElementById('ov').classList.remove('show')">✕</button>
+    </div>
+    <div class="mbody" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+// ── SUBJECT META ──────────────────────────────────
+const S = {
+  PHY:  {n:'পদার্থবিজ্ঞান', c:'#38bdf8', i:'⚛️', s:'পদার্থ'},
+  CHEM: {n:'রসায়ন',         c:'#34d399', i:'🧪', s:'রসায়ন'},
+  MATH: {n:'উচ্চতর গণিত',  c:'#fbbf24', i:'📐', s:'গণিত'},
+  BIO:  {n:'জীববিজ্ঞান',    c:'#f472b6', i:'🌿', s:'জীব'},
+  ENG:  {n:'ইংরেজি',        c:'#a78bfa', i:'📝', s:'ইংরেজি'},
+  BAN:  {n:'বাংলা',         c:'#fb923c', i:'📖', s:'বাংলা'},
+  ICT:  {n:'ICT',           c:'#06b6d4', i:'💻', s:'ICT'},
+};
+
+// ── TOPIC POOLS ───────────────────────────────────
+// Phase 1 (Ramadan): lighter topics, 3-4 topics per subject per day
+// Phase 2 (Intensive): harder, more practice
+
+const POOL = {
+  PHY: {
+    p1: [
+      ['অধ্যায় ১: একক ও পরিমাপ — SI একক, মাত্রা বিশ্লেষণ', 'বোর্ড বইয়ের উদাহরণ ১-৫ করো', 'মাত্রা দিয়ে সূত্র যাচাই করো'],
+      ['অধ্যায় ২: ভেক্টর — যোগ, বিয়োগ, লব্ধি', 'ডট গুণ ও ক্রস গুণ বোঝো', 'অনুশীলনীর ১-৮ নম্বর সমাধান'],
+      ['অধ্যায় ৩: গতিবিদ্যা — সরলরেখায় গতি, SUVAT', 'v-t graph আঁকো ও বোঝো', 'MCQ ১০টি করো'],
+      ['অধ্যায় ৪: নিউটনের সূত্র — বল, ভরবেগ, ঘর্ষণ', 'নিউটনের ৩টি সূত্র নিজের ভাষায় লেখো', 'Atwood machine বোঝো'],
+      ['অধ্যায় ৫: কাজ, শক্তি ও ক্ষমতা — সংজ্ঞা ও সূত্র', 'শক্তির সংরক্ষণ নীতি প্র্যাকটিস', 'বোর্ড বইয়ের উদাহরণ করো'],
+      ['অধ্যায় ৬: মহাকর্ষ — g, কেপলারের সূত্র', 'উপগ্রহের গতি বোঝো', 'অনুশীলনী সমাধান'],
+      ['অধ্যায় ৭: পদার্থের গুণ — চাপ, প্লবতা, পৃষ্ঠটান', 'Archimedes নীতি থেকে সমস্যা', 'সৃজনশীল ১টি করো'],
+    ],
+    p2: [
+      ['অধ্যায় ৮: পর্যাবৃত্ত গতি — SHM, পেন্ডুলাম সূত্র', 'T ও f হিসাব করো', '২টি সৃজনশীল সমাধান'],
+      ['অধ্যায় ৯: তরঙ্গ — শব্দ, Doppler effect', 'তরঙ্গ সমীকরণ বোঝো ও প্র্যাকটিস', 'MCQ + ১ সৃজনশীল'],
+      ['অধ্যায় ১০: আলো — প্রতিফলন, প্রতিসরণ, লেন্স', 'লেন্স সূত্র দিয়ে হিসাব করো', 'চিত্র এঁকে বোঝাও'],
+      ['অধ্যায় ১১: তাপ — তাপগতিবিদ্যার সূত্র', 'Carnot cycle বোঝো', 'তাপধারণ ক্ষমতা হিসাব'],
+      ['অধ্যায় ১২: তড়িৎ — কুলম্ব সূত্র, ক্যাপাসিটর', 'সমতুল্য ক্যাপাসিট্যান্স বের করো', 'কার্কহফের সূত্র'],
+      ['অধ্যায় ১৩: চলবিদ্যুৎ — Ohm, Wheatstone bridge', 'সার্কিট সমস্যা সমাধান', '২টি সৃজনশীল'],
+      ['অধ্যায় ১৪: চুম্বকত্ব — magnetic field, force', 'বায়োট-সাভার্ট সূত্র', 'আনয়ন সমস্যা'],
+      ['২০২৪ সালের test paper সম্পূর্ণ করো', 'ভুল উত্তরগুলো খাতায় নোট করো', 'দুর্বল topic চিহ্নিত করো'],
+      ['Revision: অধ্যায় ১-৭ এর সূত্র ঝালাই', 'Short notes তৈরি করো', 'MCQ practice ২০টি'],
+      ['Revision: অধ্যায় ৮-১৪ ঝালাই', 'সৃজনশীল pattern মনে করো', 'Final practice test'],
+    ],
+  },
+  CHEM: {
+    p1: [
+      ['অধ্যায় ১: রসায়নের ধারণা — মোল, আণবিক ভর', 'মোলারিটি হিসাব করো', 'MCQ ১০টি'],
+      ['অধ্যায় ২: পরমাণুর গঠন — ইলেকট্রন বিন্যাস', 'quantum number বোঝো', 'অনুশীলনী সমাধান'],
+      ['অধ্যায় ৩: পর্যায় সারণি — group, period, properties', 'ট্রেন্ড মনে রাখো', 'MCQ প্র্যাকটিস'],
+      ['অধ্যায় ৪: রাসায়নিক বন্ধন — ionic, covalent', 'Lewis dot structure আঁকো', 'বোর্ড বইয়ের উদাহরণ'],
+      ['অধ্যায় ৫: গ্যাসীয় অবস্থা — Boyle, Charles সূত্র', 'Ideal gas equation প্র্যাকটিস', 'সমস্যা সমাধান'],
+      ['অধ্যায় ৬: তাপরসায়ন — এনথালপি, Hess সূত্র', 'তাপ হিসাব করো', 'MCQ + সৃজনশীল'],
+      ['অধ্যায় ৭: সাম্যবস্থা — Ka, Kb, Kc, pH', 'pH হিসাব বারবার করো', 'buffer solution বোঝো'],
+    ],
+    p2: [
+      ['অধ্যায় ৮: জারণ-বিজারণ — oxidation number', 'Half-reaction balance করো', '২টি সৃজনশীল'],
+      ['অধ্যায় ৯: তড়িৎ রসায়ন — electrolysis, cell', 'Faraday সূত্র প্র্যাকটিস', 'কোষ বিক্রিয়া লেখো'],
+      ['অধ্যায় ১০: জৈব রসায়ন — alkane, alkene, alkyne', 'নামকরণ IUPAC rules মনে করো', 'Functional group চেনো'],
+      ['অধ্যায় ১১: হ্যালোজেন যৌগ — প্রস্তুতি, ধর্ম', 'বিক্রিয়া equations লেখো', 'MCQ ১৫টি'],
+      ['অধ্যায় ১২: অ্যালকোহল ও ইথার — ধর্ম, ব্যবহার', 'Fermentation reaction', 'সৃজনশীল ২টি'],
+      ['অধ্যায় ১৩: অ্যালডিহাইড ও কিটোন', 'Identification tests মনে করো', 'বিক্রিয়া practice'],
+      ['অধ্যায় ১৪: অ্যাসিড ও অ্যামিন — ধর্ম', 'Amide, ester তৈরির বিক্রিয়া', '২০২৪ test paper করো'],
+      ['২০২৪ test paper সম্পূর্ণ করো', 'সব বিক্রিয়া equations একসাথে লেখো', 'Weak topics review'],
+      ['Revision: জৈব রসায়ন সব chapter', 'Flowchart তৈরি করো', 'MCQ ২০টি'],
+      ['Revision: অজৈব সব chapter', 'সূত্র ও হিসাব ঝালাই', 'Final mock test'],
+    ],
+  },
+  MATH: {
+    p1: [
+      ['অধ্যায় ১: ম্যাট্রিক্স ও নির্ণায়ক — সংজ্ঞা ও properties', 'Matrix যোগ-গুণ practice', 'অনুশীলনীর সহজ অঙ্ক'],
+      ['অধ্যায় ২: সরলরেখা — slope, equation of line', 'Two point form, intercept form', 'অঙ্ক ৫টি করো'],
+      ['অধ্যায় ৩: বৃত্ত — সমীকরণ, স্পর্শক', 'Centre-radius form লেখো', 'বোর্ড বইয়ের উদাহরণ'],
+      ['অধ্যায় ৪: ত্রিকোণমিতি — সূত্র, compound angle', 'sin, cos, tan সূত্র মনে করো', '৫টি অঙ্ক করো'],
+      ['অধ্যায় ৫: সম্ভাবনা — basic rules', 'Permutation ও Combination', 'সহজ সমস্যা ৫টি'],
+      ['অধ্যায় ৬: পরিসংখ্যান — mean, median, SD', 'হিসাব practice করো', 'MCQ ১০টি'],
+      ['সব chapter-এর সহজ অঙ্ক repeat করো', 'সূত্র list তৈরি করো', 'বোর্ড বইয়ের অনুশীলনী'],
+    ],
+    p2: [
+      ['অধ্যায় ৭: সীমা ও অবিচ্ছিন্নতা — limit হিসাব', 'L\'Hopital rule practice', '৭টি অঙ্ক'],
+      ['অধ্যায় ৮: অবকলন — differentiation rules', 'Chain rule, product rule', 'সৃজনশীল ২টি'],
+      ['অধ্যায় ৯: সমাকলন — indefinite, definite', 'Integration by substitution', '৮টি অঙ্ক'],
+      ['অধ্যায় ১০: শঙ্কু — parabola, ellipse, hyperbola', 'সমীকরণ ও properties', '৫টি অঙ্ক'],
+      ['Revision: সরলরেখা + বৃত্ত + শঙ্কু', 'কঠিন অঙ্ক চেষ্টা করো', '২০২৪ test paper'],
+      ['Revision: অবকলন + সমাকলন', 'প্রতি chapter থেকে ২টি করে', 'Full mock test'],
+      ['২০২৪ test paper সম্পূর্ণ — সময় ধরে', 'ভুল দেখো ও শুধরাও', 'দুর্বল chapter আবার করো'],
+      ['Revision: ত্রিকোণমিতি + সম্ভাবনা', 'সূত্র ঝালাই করো', 'MCQ ২০টি'],
+      ['সব chapter একবার করে সূত্র দেখো', 'Board pattern-এ সৃজনশীল লেখো', 'Final revision'],
+      ['Final mock — সম্পূর্ণ প্রশ্নপত্র সময় ধরে', 'নম্বর হিসাব করো', 'দুর্বল জায়গা note করো'],
+    ],
+  },
+  BIO: {
+    p1: [
+      ['অধ্যায় ১: কোষ — prokaryotic ও eukaryotic পার্থক্য', 'কোষ চিত্র এঁকে label করো', 'MCQ ১০টি'],
+      ['অধ্যায় ২: কোষ বিভাজন — mitosis ধাপ', 'প্রতিটি ধাপের চিত্র আঁকো', 'বোর্ড বই পড়ো'],
+      ['অধ্যায় ৩: কোষ বিভাজন — meiosis ধাপ', 'Mitosis vs Meiosis তুলনা করো', 'সৃজনশীল ১টি'],
+      ['অধ্যায় ৪: উদ্ভিদ পুষ্টি — সালোকসংশ্লেষণ', 'Light ও dark reaction', 'চিত্র ও ব্যাখ্যা'],
+      ['অধ্যায় ৫: শ্বসন — aerobic, anaerobic', 'ATP উৎপাদন প্রক্রিয়া', 'MCQ practice'],
+      ['অধ্যায় ৬: উদ্ভিদের পানি পরিবহন — osmosis', 'Transpiration pull বোঝো', 'চিত্র আঁকো'],
+      ['অধ্যায় ৭: উদ্ভিদের প্রজনন — ফুলের অংশ', 'Pollination types', 'সৃজনশীল ১টি'],
+    ],
+    p2: [
+      ['অধ্যায় ৮: DNA ও জিনতত্ত্ব — DNA গঠন', 'Replication ও Transcription', 'চিত্র সহ ব্যাখ্যা'],
+      ['অধ্যায় ৯: মেন্ডেলের সূত্র — monohybrid, dihybrid', 'Punnett square তৈরি করো', 'Genetics সমস্যা'],
+      ['অধ্যায় ১০: মানব শরীর — রক্ত ও হৃদপিণ্ড', 'রক্ত সঞ্চালন চিত্র আঁকো', 'Blood groups মনে করো'],
+      ['অধ্যায় ১১: শ্বাসতন্ত্র — ফুসফুসের কাজ', 'Gas exchange চিত্র', 'MCQ + সৃজনশীল'],
+      ['অধ্যায় ১২: পাচনতন্ত্র — enzymes ও পাচন', 'প্রতিটি অঙ্গের কাজ মনে করো', 'চিত্র practice'],
+      ['অধ্যায় ১৩: স্নায়ুতন্ত্র — নিউরন, brain', 'Reflex arc চিত্র আঁকো', 'MCQ ১৫টি'],
+      ['অধ্যায় ১৪: রোগ প্রতিরোধ — immune system', 'Vaccine ও antibody বোঝো', '২০২৪ test paper'],
+      ['২০২৪ test paper করো সম্পূর্ণ', 'উদ্ভিদ ও প্রাণী chapter একসাথে review', 'Short notes'],
+      ['Revision: কোষ, বিভাজন, DNA', 'সব চিত্র একবার আঁকো', 'MCQ ২০টি'],
+      ['Revision: মানব শরীর সব chapter', 'Board pattern সৃজনশীল', 'Final mock'],
+    ],
+  },
+  ENG: {
+    p1: [
+      ['Reading: Seen passage technique শেখো', 'Comprehension questions answer practice', '১টি seen passage করো'],
+      ['Writing: Formal letter format শেখো', '১টি letter লেখো (job application)', 'Vocabulary ১০টি মনে করো'],
+      ['Grammar: Tense — Present, Past, Future', 'Tense exercise ১৫টি করো', 'Transformation বোঝো'],
+      ['Writing: Email writing format ও practice', '১টি email লেখো', 'Connectors মনে করো'],
+      ['Grammar: Voice — Active to Passive', 'Passive voice exercise ২০টি', 'বোর্ড বইয়ের grammar'],
+      ['Writing: Paragraph writing practice', '১টি paragraph লেখো (100 words)', 'Linking words শেখো'],
+      ['Grammar: Narration — Direct to Indirect', 'Reporting verbs মনে করো', 'Exercise ১৫টি'],
+    ],
+    p2: [
+      ['Reading: Unseen passage technique', 'Inference questions practice', '২টি passage করো'],
+      ['Writing: Summary writing — how to reduce', '১টি summary করো', 'Key idea বের করার method'],
+      ['Grammar: Articles, Prepositions', 'Fill in the blanks ২০টি', 'Common mistakes review'],
+      ['Writing: Dialogue writing practice', '১টি dialogue লেখো', 'Formal vs informal tone'],
+      ['Grammar: Conditionals — type 1,2,3', 'Exercise ১৫টি করো', 'Mixed conditionals'],
+      ['Writing: Report writing format', '১টি report লেখো', 'Headline ও structure'],
+      ['২০২৩-২৪ board question pattern দেখো', 'Writing সব format একবার review', 'MCQ practice'],
+      ['Full mock test — সময় ধরে লেখো', 'Writing part check করো', 'Grammar weak areas'],
+      ['Revision: Grammar সব rules', 'Short notes তৈরি করো', 'Vocabulary review'],
+      ['Final practice: সম্পূর্ণ প্রশ্নপত্র', 'Time management practice', 'Final check'],
+    ],
+  },
+  BAN: {
+    p1: [
+      ['গল্প: প্রথম পাঠ — মূলভাব ও বিষয়বস্তু', 'সৃজনশীল প্রশ্নের উত্তর practice', 'MCQ ১০টি'],
+      ['কবিতা: প্রথম কবিতা — ব্যাখ্যা ও মূলভাব', 'কবির পরিচয় মনে করো', 'ভাব-সম্প্রসারণ ১টি'],
+      ['গদ্য: বিভিন্ন প্রবন্ধ পড়ো', 'সারাংশ লেখার technique', '১টি সারাংশ করো'],
+      ['ভাষা: ব্যাকরণ — সন্ধি, সমাস', 'MCQ practice ২০টি', 'বোর্ড বই দেখো'],
+      ['গল্প ও কবিতা: পরের অধ্যায়', 'সৃজনশীল উত্তর লেখো', 'MCQ করো'],
+      ['ভাষা: কারক, বিভক্তি, বাচ্য', 'Transformation exercise', 'MCQ ১৫টি'],
+      ['রচনা: ১টি রচনা লেখো (৫০০ শব্দ)', 'Paragraph structure বোঝো', 'পরিবেশ/প্রযুক্তি topic'],
+    ],
+    p2: [
+      ['সব গল্প-কবিতা একবার পড়ো', 'Important quotes মনে করো', 'সৃজনশীল pattern দেখো'],
+      ['ব্যাকরণ: সব topic revision', 'Short notes', 'MCQ ২০টি'],
+      ['Revision: সৃজনশীল উত্তর practice', '২টি সৃজনশীল করো', 'Board pattern follow'],
+      ['Mock test: সম্পূর্ণ বাংলা পরীক্ষা', 'সময় ধরে লেখো', 'ভুল দেখো'],
+    ],
+  },
+  ICT: {
+    p1: [
+      ['অধ্যায় ১: তথ্য ও যোগাযোগ প্রযুক্তি — সংজ্ঞা', 'গুরুত্বপূর্ণ term মনে করো', 'MCQ ১৫টি'],
+      ['অধ্যায় ২: কম্পিউটার — hardware, software', 'বিভিন্ন device চেনো', 'MCQ practice'],
+      ['অধ্যায় ৩: সংখ্যা পদ্ধতি — binary, decimal', 'Conversion practice ১০টি', 'বোর্ড বই অনুশীলনী'],
+      ['অধ্যায় ৪: ডেটাবেস — basic concepts', 'Table, query, form বোঝো', 'MCQ ১০টি'],
+      ['অধ্যায় ৫: Programming — basic C/Python', 'Algorithm ও flowchart', 'সহজ program বোঝো'],
+    ],
+    p2: [
+      ['ICT সব chapter revision', 'Short notes তৈরি করো', 'MCQ ২৫টি'],
+      ['Srijoshil practice ২টি করো', 'Board pattern follow', 'Weak topics আবার পড়ো'],
+      ['Mock test: ICT সম্পূর্ণ', 'সময় ধরে', 'Final review'],
+    ],
+  },
+};
+
+// ── DAILY SCHEDULE BUILDER ──────────────────────────
+// Each study day returns: array of 5 {sub, time, topics[]}
+
+// রমজানের সময়সূচি — ৩টি block, মোট ~৯.৫ ঘণ্টা
+// Block A: সকাল ৯:০০–১২:৩০ (৩.৫ ঘণ্টা) → ২টি subject
+// Block B: দুপুর ২:০০–৪:৫০ (২.৫ ঘণ্টা) → ১.৫টি subject (~১-২)
+// Block C: রাত ৭:১০–১১:০০ (৩.৫ ঘণ্টা) → ২টি subject
+const RAMADAN_TIMES = [
+  {t:'সকাল ৯:০০–১০:৪৫ ☀️', h:1.75},
+  {t:'সকাল ১০:৫০–১২:৩০ ☀️', h:1.67},
+  {t:'দুপুর ২:০০–৩:৩০ 🕑', h:1.5},
+  {t:'রাত ৭:১০–৯:০০ 🌙', h:1.75},
+  {t:'রাত ৯:০৫–১১:০০ 🌙 (১১টায় শেষ)', h:1.92},
+];
+
+// ঈদের পর — ৬টি subject, রাত ১১টার মধ্যে
+// Block A: সকাল ৯:০০–১২:৩০ (৩.৫ ঘণ্টা) → ২টি subject
+// Block B: দুপুর ২:০০–৪:৫০ (২.৫ ঘণ্টা) → ২টি subject
+// Block C: রাত ৭:১০–১১:০০ (৩.৫ ঘণ্টা) → ২টি subject
+const NORMAL_TIMES = [
+  {t:'সকাল ৯:০০–১০:৩০ 🌅', h:1.5},
+  {t:'সকাল ১০:৪০–১২:৩০ ☀️', h:1.83},
+  {t:'দুপুর ২:০০–৩:২০ 🕑', h:1.33},
+  {t:'দুপুর ৩:৩০–৪:৫০ 🕒', h:1.33},
+  {t:'রাত ৭:১০–৯:০০ 🌙', h:1.75},
+  {t:'রাত ৯:০৫–১১:০০ 🌙 (১১টায় শেষ)', h:1.92},
+];
+
+// 7-day rotating subject pattern for Phase 1 (Ramadan) - lighter
+const P1_PATTERN = [
+  ['PHY','CHEM','MATH','BIO','ENG'],
+  ['CHEM','BIO','ENG','BAN','PHY'],
+  ['MATH','PHY','BIO','ENG','CHEM'],
+  ['BIO','MATH','CHEM','ICT','ENG'],
+  ['ENG','PHY','MATH','CHEM','BAN'],
+  ['PHY','CHEM','BIO','ENG','MATH'],
+  ['BAN','ICT','PHY','CHEM','MATH'],
+];
+
+// ঈদের পর — ৬টি subject প্রতিদিন
+const P2_PATTERN = [
+  ['PHY','CHEM','MATH','BIO','ENG','BAN'],
+  ['CHEM','PHY','BIO','MATH','ENG','ICT'],
+  ['MATH','CHEM','PHY','BIO','ENG','BAN'],
+  ['BIO','PHY','CHEM','MATH','ENG','ICT'],
+  ['PHY','MATH','BIO','CHEM','ENG','BAN'],
+  ['CHEM','BIO','MATH','PHY','ENG','ICT'],
+  ['PHY','CHEM','MATH','BIO','BAN','ENG'],
+];
+
+// Track topic index per subject
+const topicIdx = {PHY:0,CHEM:0,MATH:0,BIO:0,ENG:0,BAN:0,ICT:0};
+const phaseTopicIdx = {PHY:0,CHEM:0,MATH:0,BIO:0,ENG:0,BAN:0,ICT:0};
+
+function getTopics(sub, phase) {
+  const pool = phase === 1 ? POOL[sub].p1 : POOL[sub].p2;
+  const idx = phase === 1 
+    ? (topicIdx[sub]++ % pool.length)
+    : (phaseTopicIdx[sub]++ % pool.length);
+  return pool[idx];
+}
+
+// ── DATE HELPERS ───────────────────────────────────
+const BN_MONTHS = ['','জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const BN_DAYS = ['রোব','সোম','মঙ্গল','বুধ','বৃহস্','শুক্র','শনি'];
+const EN_DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function dayOfWeek(y,m,d){
+  return new Date(y,m-1,d).getDay();
+}
+
+function getDayType(m,d){
+  // ঈদ ছুটি: ২২–২৭ মার্চ
+  if(m===3 && d>=22 && d<=27) return 'eid';
+  return 'study';
+}
+
+// ── CALENDAR DATA ────────────────────────────────
+// We build March (5-31) and April and May
+
+const months = [
+  {y:2025, m:3, name:'মার্চ ২০২৫', label:'রমজান ও ঈদ', startDay: new Date(2025,2,1).getDay(), days:31, from:5},
+  {y:2025, m:4, name:'এপ্রিল ২০২৫', label:'Intensive শুরু', startDay: new Date(2025,3,1).getDay(), days:30, from:1},
+  {y:2025, m:5, name:'মে ২০২৫', label:'Final Preparation', startDay: new Date(2025,4,1).getDay(), days:31, from:1},
+];
+
+// ── SCHEDULE GENERATION ─────────────────────────
+// Pre-generate all study days
+const scheduleCache = {};
+
+let p1Count = 0; // Ramadan days
+let p2Count = 0; // Intensive days
+
+function buildSchedule(m, d) {
+  const key = `${m}-${d}`;
+  if(scheduleCache[key]) return scheduleCache[key];
+  
+  const dayType = getDayType(m, d);
+  if(dayType !== 'study') {
+    scheduleCache[key] = null;
+    return null;
+  }
+  
+  const isRamadan = (m===3 && d<=21); // রমজান ৫–২১ মার্চ
+  const phase = isRamadan ? 1 : 2;
+  const pattern = isRamadan ? P1_PATTERN : P2_PATTERN;
+  const times = isRamadan ? RAMADAN_TIMES : NORMAL_TIMES;
+  
+  const count = isRamadan ? p1Count++ : p2Count++;
+  const dayPattern = pattern[count % 7];
+  
+  const schedule = dayPattern.map((sub, i) => ({
+    sub,
+    time: (times[i] || times[times.length-1]).t,
+    hours: (times[i] || times[times.length-1]).h,
+    topics: getTopics(sub, phase),
+  }));
+  
+  scheduleCache[key] = {schedule, phase, isRamadan};
+  return scheduleCache[key];
+}
+
+// Pre-build all schedules in order
+function preGenerate(){
+  // March 5-31
+  for(let d=5;d<=31;d++) buildSchedule(3,d);
+  // April 1-30
+  for(let d=1;d<=30;d++) buildSchedule(4,d);
+  // May 1-31
+  for(let d=1;d<=31;d++) buildSchedule(5,d);
+}
+preGenerate();
+
+// ── RENDER CALENDAR ────────────────────────────────
+function renderCalendars(){
+  const root = document.getElementById('cal-root');
+  root.innerHTML = '';
+  
+  months.forEach(mo => {
+    const sec = document.createElement('div');
+    sec.className = 'month-sec';
+    
+    const hd = document.createElement('div');
+    hd.className = 'month-hd';
+    hd.innerHTML = `📅 ${mo.name} <small>${mo.label}</small>`;
+    sec.appendChild(hd);
+    
+    const grid = document.createElement('div');
+    grid.className = 'cal-wrap';
+    
+    // Day headers
+    EN_DAYS.forEach(d => {
+      const dh = document.createElement('div');
+      dh.className = 'day-hdr';
+      dh.textContent = d;
+      grid.appendChild(dh);
+    });
+    
+    // Empty cells before first day
+    for(let i=0;i<mo.startDay;i++){
+      const em = document.createElement('div');
+      em.className = 'day-cell empty';
+      grid.appendChild(em);
+    }
+    
+    // Day cells
+    for(let d=1;d<=mo.days;d++){
+      const cell = document.createElement('div');
+      
+      // Check if before start
+      if(mo.m===3 && d<5){
+        cell.className='day-cell off';
+        cell.innerHTML=`<div class="dnum">${d}</div><div class="off-lbl" style="font-size:8px">—</div>`;
+        grid.appendChild(cell);
+        continue;
+      }
+      
+      const dtype = getDayType(mo.m, d);
+      const today = new Date();
+      const isToday = (today.getFullYear()===mo.y && today.getMonth()===mo.m-1 && today.getDate()===d);
+      
+      if(dtype==='eid'){
+        cell.className='day-cell eid-day';
+        cell.innerHTML=`<div class="dnum">${d}</div><div class="off-lbl">🎉 ঈদ<br>ছুটি</div>`;
+      } else if(dtype==='village'){
+        // no village period
+      } else {
+        cell.className = 'day-cell' + (isToday?' today':'');
+        
+        const sched = buildSchedule(mo.m, d);
+        let pillsHTML = '';
+        if(sched){
+          sched.schedule.slice(0,3).forEach(({sub}) => {
+            const s = S[sub];
+            pillsHTML += `<div class="pill" style="background:${s.c}22;color:${s.c};border:1px solid ${s.c}44">${s.s}</div>`;
+          });
+          if(sched.schedule.length>3){
+            pillsHTML += `<div class="pill" style="background:#ffffff10;color:#64748b">+${sched.schedule.length-3}</div>`;
+          }
+        }
+        
+        cell.innerHTML = `<div class="dnum">${d}</div><div class="pills">${pillsHTML}</div>`;
+        cell.addEventListener('click', () => openModal(mo.y, mo.m, d));
+      }
+      
+      grid.appendChild(cell);
+    }
+    
+    sec.appendChild(grid);
+    root.appendChild(sec);
+  });
+}
+
+// ── MODAL ─────────────────────────────────────────
+function openModal(y, m, d){
+  const sched = buildSchedule(m, d);
+  if(!sched) return;
+  
+  const dow = dayOfWeek(y,m,d);
+  document.getElementById('m-date').textContent = `${d} ${BN_MONTHS[m]} ${y} — ${BN_DAYS[dow]}বার`;
+  
+  const phaseLabels = {
+    true: {text:'📿 রমজান ফেজ — সকাল ৯টা থেকে, রাত ১১টায় শেষ · ৫ বিষয়/দিন', color:'#38bdf8'},
+    false: {text:'🔥 Intensive ফেজ — সকাল ৯টা থেকে, রাত ১১টায় শেষ · ৬ বিষয়/দিন', color:'#f87171'},
+  };
+  const pl = phaseLabels[String(sched.isRamadan)];
+  document.getElementById('m-phase').innerHTML = `<span style="color:${pl.color}">${pl.text}</span>`;
+  
+  const totalHours = Math.round(sched.schedule.reduce((a,b) => a+b.hours, 0) * 10) / 10;
+  
+  let timeBannerText = sched.isRamadan 
+    ? `📿 রমজান রুটিন: <strong style="color:#fbbf24">Block A → সকাল ৯:০০–১২:৩০</strong> (২ বিষয়) · <strong style="color:#fbbf24">Block B → দুপুর ২:০০–৪:৫০</strong> (১ বিষয়) · <strong style="color:#fbbf24">Block C → রাত ৭:১০–১১:০০</strong> (২ বিষয়) · মোট ~${totalHours} ঘণ্টা`
+    : `🔥 Intensive রুটিন: <strong style="color:#f87171">Block A → সকাল ৯:০০–১২:৩০</strong> (২ বিষয়) · <strong style="color:#f87171">Block B → দুপুর ২:০০–৪:৫০</strong> (২ বিষয়) · <strong style="color:#f87171">Block C → রাত ৭:১০–১১:০০</strong> (২ বিষয়) · মোট ~${totalHours} ঘণ্টা`;
+  
+  let html = `
+    <div class="time-banner">
+      <strong>⏰ আজকের সময়সূচি (মোট ~${totalHours} ঘণ্টা)</strong>
+      ${timeBannerText}
+    </div>
+    <div class="sub-cards-title">📚 আজকের ৫টি বিষয় ও কী পড়বে</div>
+  `;
+  
+  sched.schedule.forEach(({sub, time, topics}, i) => {
+    const s = S[sub];
+    const topicsHTML = topics.map(t => `<li>${t}</li>`).join('');
+    html += `
+      <div class="sub-card" style="border-left-color:${s.c}">
+        <div class="sc-top">
+          <span class="sc-icon">${s.i}</span>
+          <span class="sc-name" style="color:${s.c}">${s.n}</span>
+          <span class="sc-time">${time}</span>
+        </div>
+        <ul class="sc-topics">${topicsHTML}</ul>
+      </div>
+    `;
+  });
+  
+  // Daily tip
+  const tips = [
+    'পড়া শুরুর আগে ৫ মিনিট আগের দিনের পড়া মনে করো — এতে memory শক্তিশালী হয়।',
+    'প্রতিটি বিষয় পড়ার পর নিজেকে প্রশ্ন করো — কী বুঝলাম? নিজেকে পড়াতে পারি?',
+    'Board বইয়ের উদাহরণ সমস্যাগুলো সবচেয়ে গুরুত্বপূর্ণ — সব করো।',
+    'কঠিন topic-এ আটকে গেলে skip করো, পরে ফিরে এসো। সময় নষ্ট করবে না।',
+    'রাতে ঘুমানোর আগে ১০ মিনিট আজকের পড়া মনে করো — sleep memory consolidate করে।',
+    'পানি খেতে ভুলো না — dehydrated মাথায় পড়া ঢোকে না।',
+    'সৃজনশীল লেখার সময় প্রথমে outline করো, তারপর লেখো — সময় কম লাগবে।',
+  ];
+  const todayTip = tips[(d + m) % tips.length];
+  
+  html += `
+    <div class="tip-box">
+      <strong>💡 আজকের টিপস</strong>
+      ${todayTip}
+    </div>
+  `;
+  
+  document.getElementById('m-body').innerHTML = html;
+  document.getElementById('ov').classList.add('show');
+}
+
+function closeOv(e){
+  if(e.target === document.getElementById('ov')){
+    document.getElementById('ov').classList.remove('show');
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape') document.getElementById('ov').classList.remove('show');
+});
+
+// ── INIT ─────────────────────────────────────────
+renderCalendars();
+</script>
+</body>
+</html>
